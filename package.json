@@ -1,0 +1,12 @@
+{
+  "name": "remote-mouse-tests",
+  "private": true,
+  "type": "module",
+  "description": "Browser-side gesture tests for the remote-mouse phone client.",
+  "scripts": {
+    "test": "node tests/gesture-tests.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}

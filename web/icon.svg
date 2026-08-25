@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Remote Mouse">
+  <rect width="512" height="512" rx="112" fill="#0b1020"/>
+  <rect x="150" y="86" width="212" height="340" rx="106" fill="none" stroke="#4ade80" stroke-width="26"/>
+  <line x1="256" y1="150" x2="256" y2="236" stroke="#4ade80" stroke-width="26" stroke-linecap="round"/>
+  <circle cx="256" cy="330" r="22" fill="#4ade80"/>
+</svg>

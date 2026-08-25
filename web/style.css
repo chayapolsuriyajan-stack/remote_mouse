@@ -1,0 +1,178 @@
+:root {
+  --bg: #0b1020;
+  --surface: #151c33;
+  --surface-2: #1d2745;
+  --line: #2c3860;
+  --text: #e8ecf8;
+  --muted: #8d99bd;
+  --accent: #4ade80;
+  --accent-off: #f87171;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* The page is a control surface, not a document: nothing here should be
+     selectable, magnified, or long-press-menu-able. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  flex: none;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.status::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent-off);
+  box-shadow: 0 0 8px currentColor;
+}
+
+.status--on { color: var(--accent); }
+.status--on::before { background: var(--accent); }
+.status--off { color: var(--accent-off); }
+
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pad {
+  position: relative;
+  flex: 1 1 auto;
+  margin: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #1b2547 0%, var(--surface) 60%);
+  /* Critical: without touch-action none the browser eats the very gestures we
+     are trying to recognise (scroll, pinch-zoom, back-swipe). */
+  touch-action: none;
+  overscroll-behavior: none;
+  display: grid;
+  place-items: center;
+}
+
+.pad--active { border-color: #46d18a; }
+
+.pad__label {
+  margin: 0;
+  color: #33406c;
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* Right-hand strip: one-finger vertical scrolling, like a laptop trackpad's
+   scroll zone, for when two fingers are awkward one-handed. */
+.pad__edge {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  bottom: 8px;
+  width: 34px;
+  border-left: 1px dashed var(--line);
+  border-radius: 0 17px 17px 0;
+  pointer-events: none;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  flex: none;
+}
+
+.btn {
+  flex: 1;
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  touch-action: none;
+}
+
+.btn--mid { flex: 0 0 26%; }
+.btn:active, .btn--down { background: #2c3a68; border-color: #46d18a; }
+
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #06240f;
+  min-height: 50px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(6, 10, 24, 0.92);
+}
+
+.overlay[hidden] { display: none; }
+
+.card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.card h1 { margin: 0 0 8px; font-size: 19px; }
+.card p { margin: 0 0 16px; color: var(--muted); font-size: 13px; }
+
+.card input {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #0e1428;
+  color: var(--text);
+  font: inherit;
+  font-size: 22px;
+  letter-spacing: 0.3em;
+  text-align: center;
+}

@@ -1,0 +1,25 @@
+{
+  "host": "0.0.0.0",
+  "port": 8090,
+  "pin": "",
+  "pointer": {
+    "base": 1.5,
+    "accel": 0.06,
+    "speedCap": 60.0
+  },
+  "scroll": {
+    "divisor": 45.0,
+    "invert": false
+  },
+  "zoom": {
+    "divisor": 60.0
+  },
+  "gestures": {
+    "swipe3-left": ["ctrl", "win", "left"],
+    "swipe3-right": ["ctrl", "win", "right"],
+    "swipe3-up": ["win", "tab"],
+    "swipe3-down": ["win", "d"],
+    "swipe4-left": ["alt", "tab"],
+    "swipe4-right": ["alt", "shift", "tab"]
+  }
+}
