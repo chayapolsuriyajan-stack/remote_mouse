@@ -16,8 +16,8 @@ phone browser ──WebSocket(JSON)──► FastAPI on your PC ──pynput─�
 ## Setup (Windows)
 
 ```powershell
-git clone https://github.com/chayapolsuriyajan-stack/remote-mouse
-cd remote-mouse
+git clone https://github.com/chayapolsuriyajan-stack/remote_mouse
+cd remote_mouse
 .\run.ps1 -AddFirewallRule    # elevated prompt, first time only
 ```
 
