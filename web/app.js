@@ -153,6 +153,107 @@
   var lastTapEnd = 0;
   var longPressTimer = null;
 
+  // --- dot-grid touch highlight -----------------------------------------
+  // Replicates the mouse.ly trackpad: a dim grid of dots that brightens into
+  // a soft glowing circle under each finger. Purely visual - drawn on a
+  // canvas behind the pad's own contents, with pointer-events left on #pad,
+  // so it can never intercept a touch the gesture recognizer needs.
+  var dotsCanvas = document.getElementById("padDots");
+  var dotsCtx = dotsCanvas ? dotsCanvas.getContext("2d") : null;
+  var DOT_SPACING = 24;     // px between dot centers
+  var DOT_R0 = 1.9, DOT_R1 = 4.6;      // idle / fully-lit radius
+  var DOT_A0 = 0.34, DOT_A1 = 0.95;    // idle / fully-lit opacity
+  var GLOW_RADIUS = 120;    // px: how far the highlight reaches from a finger
+  var FADE_MS = 220;        // how long the glow lingers after the last finger lifts
+  var DIM_RGB = [44, 56, 96];      // matches --line
+  var LIT_RGB = [74, 222, 128];    // matches --accent
+  var padRect = { left: 0, top: 0, width: 0, height: 0 };
+  var dotsLoopRunning = false;
+  var fadePoints = [];
+  var fadeStart = 0;
+
+  function resizeDotsCanvas() {
+    if (!dotsCanvas) return;
+    padRect = pad.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    dotsCanvas.width = Math.max(1, Math.round(padRect.width * dpr));
+    dotsCanvas.height = Math.max(1, Math.round(padRect.height * dpr));
+    dotsCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    renderDots();
+  }
+
+  function smoothstep(t) { return t * t * (3 - 2 * t); }
+
+  function renderDots() {
+    if (!dotsCtx || !padRect.width) return;
+    var w = padRect.width, h = padRect.height;
+    dotsCtx.clearRect(0, 0, w, h);
+
+    var touches = [];
+    if (pointers.size > 0) {
+      pointers.forEach(function (p) {
+        touches.push({ x: p.x - padRect.left, y: p.y - padRect.top, w: 1 });
+      });
+    } else if (fadePoints.length && performance.now() - fadeStart < FADE_MS) {
+      var remaining = 1 - (performance.now() - fadeStart) / FADE_MS;
+      fadePoints.forEach(function (p) { touches.push({ x: p.x, y: p.y, w: remaining }); });
+    }
+
+    for (var gy = DOT_SPACING / 2; gy < h; gy += DOT_SPACING) {
+      for (var gx = DOT_SPACING / 2; gx < w; gx += DOT_SPACING) {
+        var influence = 0;
+        for (var i = 0; i < touches.length; i++) {
+          var dx = gx - touches[i].x, dy = gy - touches[i].y;
+          var t = 1 - Math.sqrt(dx * dx + dy * dy) / GLOW_RADIUS;
+          if (t > 0) {
+            t = smoothstep(t) * touches[i].w;
+            if (t > influence) influence = t;
+          }
+        }
+        var radius = DOT_R0 + (DOT_R1 - DOT_R0) * influence;
+        var alpha = DOT_A0 + (DOT_A1 - DOT_A0) * influence;
+        dotsCtx.beginPath();
+        dotsCtx.arc(gx, gy, radius, 0, Math.PI * 2);
+        dotsCtx.fillStyle = "rgba(" +
+          Math.round(DIM_RGB[0] + (LIT_RGB[0] - DIM_RGB[0]) * influence) + "," +
+          Math.round(DIM_RGB[1] + (LIT_RGB[1] - DIM_RGB[1]) * influence) + "," +
+          Math.round(DIM_RGB[2] + (LIT_RGB[2] - DIM_RGB[2]) * influence) + "," + alpha + ")";
+        if (influence > 0.08) {
+          dotsCtx.shadowColor = "rgba(74,222,128," + influence + ")";
+          dotsCtx.shadowBlur = 9 * influence;
+        } else {
+          dotsCtx.shadowBlur = 0;
+        }
+        dotsCtx.fill();
+      }
+    }
+  }
+
+  function dotsTick() {
+    renderDots();
+    if (pointers.size > 0 || performance.now() - fadeStart < FADE_MS) {
+      requestAnimationFrame(dotsTick);
+    } else {
+      dotsLoopRunning = false;
+    }
+  }
+
+  function ensureDotsLoop() {
+    if (dotsLoopRunning || !dotsCtx) return;
+    dotsLoopRunning = true;
+    requestAnimationFrame(dotsTick);
+  }
+
+  // Called with the last finger's client coordinates right as it lifts, so the
+  // glow has somewhere to fade from instead of just vanishing.
+  function startFade(clientX, clientY) {
+    fadePoints = [{ x: clientX - padRect.left, y: clientY - padRect.top }];
+    fadeStart = performance.now();
+  }
+
+  window.addEventListener("resize", resizeDotsCanvas);
+  window.addEventListener("orientationchange", resizeDotsCanvas);
+
   function newSequence() {
     return {
       maxPointers: 0,
@@ -215,6 +316,7 @@
     });
     seq.maxPointers = Math.max(seq.maxPointers, pointers.size);
     rebase();
+    ensureDotsLoop();
 
     if (pointers.size === 1) {
       var inEdge = event.clientX >= rect.right - EDGE_WIDTH;
@@ -346,6 +448,7 @@
       rebase();   // fingers remain: re-baseline so the cursor doesn't jump
       return;
     }
+    startFade(p.x, p.y);   // let the highlight glow linger and fade, not snap off
 
     cancelLongPress();
     pad.classList.remove("pad--active");
@@ -426,6 +529,7 @@
     navigator.serviceWorker.register("sw.js").catch(function () { /* offline install is optional */ });
   }
 
+  resizeDotsCanvas();
   requestWakeLock();
   connect();
 

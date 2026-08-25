@@ -9,6 +9,12 @@ No app to install: the phone side is a web page served by the PC itself, over
 your local Wi-Fi. Nothing leaves your network and there is no cloud service in
 the path.
 
+The trackpad surface is a dim dot-matrix grid, mouse.ly-style: it brightens
+into a soft glowing circle under each finger you touch down, so a two- or
+three-finger gesture is visible as multiple glowing circles right where your
+fingers actually are, and lingers for a moment as it lifts instead of
+snapping off.
+
 ```
 phone browser ──WebSocket(JSON)──► FastAPI on your PC ──pynput──► real cursor
 ```
