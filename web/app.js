@@ -308,7 +308,14 @@
     pad.setPointerCapture(event.pointerId);
     pad.classList.add("pad--active");
 
-    if (pointers.size === 0) seq = newSequence();
+    if (pointers.size === 0) {
+      seq = newSequence();
+      // Some iOS builds only grant/renew the wake lock reliably from inside a
+      // real user gesture; the load-time request in requestWakeLock() below
+      // already no-ops safely if one is already held, so this is just extra
+      // insurance, not a duplicate lock.
+      requestWakeLock();
+    }
     var rect = pad.getBoundingClientRect();
     pointers.set(event.pointerId, {
       x: event.clientX, y: event.clientY,

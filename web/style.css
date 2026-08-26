@@ -16,6 +16,13 @@ html, body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
+  /* iPadOS in particular is happy to let a pinch or double-tap that starts
+     over the header/footer chrome zoom the whole page - .pad and .btn each
+     set their own touch-action, but that leaves everything between them
+     unguarded. Blocking it here, page-wide, is what actually stops that
+     (the gesturestart/dblclick prevention in app.js is a second layer, not
+     a substitute). */
+  touch-action: none;
   background: var(--bg);
   color: var(--text);
   font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
